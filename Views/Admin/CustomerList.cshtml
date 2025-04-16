@@ -1,0 +1,67 @@
+﻿@model List<FoodDeliveryApp.Models.Customer>
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Customer List";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0">Customer List Dashboard</h3>
+        </div>
+        
+        <div class="card-body">
+
+            <!-- 🔍 Search & Filter Form -->
+            <form method="get" asp-action="CustomerList" class="form-inline mb-3">
+                <input type="text" name="searchName" class="form-control mr-2" placeholder="Search by name..." value="@Model.["searchName"]" />
+                <select name="city" class="form-control mr-2">
+                    @{
+                        var selectedCity = Context.Request.Query["city"].ToString();
+                    }
+
+                    <option value="All" selected="@(selectedCity == "All" ? "selected" : null)">All Cities</option>
+
+                    @foreach (var city in (SelectList)ViewBag.CityList)
+                    {
+                        <option value="@city.Text" selected="@(selectedCity == city.Text ? "selected" : null)">
+                            @city.Text
+                        </option>
+                    }
+                </select>
+
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Customer Name</th>
+                            <th>Email</th>
+                            <th>Phone Number</th>
+                            <th>City</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var i in Model)
+                        {
+                            <tr>
+                                <td>@i.CustomerName</td>
+                                <td>@i.Email</td>
+                                <td>@i.PhoneNumber</td>
+                                <td>@i.City</td>
+                                <td>
+                                    <a asp-controller="Admin" asp-action="DeleteCustomer" asp-route-customerId="@i.CustomerId" class="btn btn-danger btn-sm text-white">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

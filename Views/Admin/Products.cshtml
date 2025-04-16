@@ -1,0 +1,166 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<FoodDeliveryApp.Models.Item>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Admin Product Dashboard";
+}
+<style>
+    .pagination .page-link {
+        color: #0d6efd;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #e2e6ea;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0">Admin Product Dashboard</h3>
+        </div>
+
+        <div class="row mt-3 px-3">
+            <div class="col-md-4">
+                <form method="get" asp-action="Products">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search by item name..." value="@ViewData["Search"]" />
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="col-md-4">
+                <select id="availabilityFilter" class="form-select float-end w-50 ms-3" onchange="location = this.value;">
+                    @if ((ViewData["Filter"]?.ToString() ?? "all") == "all")
+                    {
+                        <option value="/Admin/Products" selected>All</option>
+                    }
+                    else
+                    {
+                        <option value="/Admin/Products">All</option>
+                    }
+
+                    @if ((ViewData["Filter"]?.ToString() ?? "") == "available")
+                    {
+                        <option value="/Admin/AvailableItems" selected>Available</option>
+                    }
+                    else
+                    {
+                        <option value="/Admin/AvailableItems">Available</option>
+                    }
+
+                    @if ((ViewData["Filter"]?.ToString() ?? "") == "unavailable")
+                    {
+                        <option value="/Admin/UnavailableItems" selected>Unavailable</option>
+                    }
+                    else
+                    {
+                        <option value="/Admin/UnavailableItems">Unavailable</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4 text-end">
+                <a href="/Admin/Create" class="btn btn-info btn-sm text-white">Add Product</a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <p class="card-text">Review and manage your current inventory items below. Use the dashboard to quickly identify items that are available or need attention.</p>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Availability</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var i in Model)
+                        {
+                            <tr>
+                                <td>@i.ItemName</td>
+                                <td>@i.Description</td>
+                                <td>@i.Price.ToString("C")</td>
+                                <td>
+                                    @if (i.IsAvailable)
+                                    {
+                                        <span class="badge bg-success">Available</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Unavailable</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="/Admin/Edit?ItemId=@i.ItemId" class="btn btn-warning btn-sm text-white">Edit</a>
+                                    <a href="/Admin/Details?ItemId=@i.ItemId" class="btn btn-info btn-sm text-white">Details</a>
+                                    <a href="/Admin/Delete?ItemId=@i.ItemId" class="btn btn-danger btn-sm text-white">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-center">
+                @Html.PagedListPager(Model, page => Url.Action(ViewData["Filter"]?.ToString() switch
+                    {
+                        "available" => "AvailableItems",
+                        "unavailable" => "UnavailableItems",
+                        _ => "Products"
+                    }, new { page, search = ViewData["Search"] }),
+                         new PagedListRenderOptions
+                {
+                    UlElementClasses = new[] { "pagination", "justify-content-center" },
+                    LiElementClasses = new[] { "page-item" },
+                    PageClasses = new[] { "page-link" },
+                    ActiveLiElementClass = "active",
+                    
+                    LinkToPreviousPageFormat = "«",
+                    LinkToNextPageFormat = "»",
+                    LinkToFirstPageFormat = "First",
+                    LinkToLastPageFormat = "Last",
+                    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                    DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                    DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                    DisplayLinkToIndividualPages = true
+                }
+                )
+                @* <div class="d-flex justify-content-center"> *@
+                @*     @Html.PagedListPager(Model, page => Url.Action(ViewData["Filter"]?.ToString() switch *@
+                @*         { *@
+                @*             "available" => "AvailableItems", *@
+                @*             "unavailable" => "UnavailableItems", *@
+                @*             _ => "Products" *@
+                @*         }, new { page, search = ViewData["Search"] })) *@
+                @* </div> *@
+
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                      
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+
+
+            </div>
+        </div>
+    </div>
+</div>
